@@ -48,13 +48,13 @@ accounts:
     annual_contribution: 10000  # Annual contribution
     contribution_limit: 23000   # IRS limit (null for no limit)
     type: pre_tax              # Account type
-  
+
   roth_ira:
     balance: 15000
     annual_contribution: 3000
     contribution_limit: 7000
     type: roth                 # Tax-free withdrawals
-  
+
   taxable:
     balance: 5000
     annual_contribution: 2000

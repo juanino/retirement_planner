@@ -1,0 +1,11 @@
+[MASTER]
+ignore-patterns=
+
+[MESSAGES CONTROL]
+disable=missing-class-docstring,too-many-locals,too-many-branches,too-many-statements
+
+[FORMAT]
+max-line-length=120
+
+[REPORTS]
+score=yes
