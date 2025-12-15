@@ -1,0 +1,54 @@
+# Sample Retirement Planner Configuration (public-safe)
+# Copy this file and customize values for your scenario.
+# For private configs, use a separate file and pass with: --config your_config.yaml
+
+# Personal Information
+current_age: 35
+retirement_age: 65
+life_expectancy: 90
+current_annual_income: 80000
+
+# Tax Rates (approximate)
+current_tax_rate: 0.22
+retirement_tax_rate: 0.15
+capital_gains_rate: 0.15
+
+# Accounts
+accounts:
+  traditional_401k:
+    balance: 20000
+    annual_contribution: 10000
+    contribution_limit: 23000
+    type: pre_tax
+  roth_ira:
+    balance: 10000
+    annual_contribution: 6000
+    contribution_limit: 7000
+    type: roth
+  taxable:
+    balance: 5000
+    annual_contribution: 2000
+    contribution_limit: null
+    type: taxable
+
+# Investment & Inflation Assumptions
+expected_return_rate: 0.06      # 6% annual investment return
+inflation_rate: 0.03            # 3% annual inflation
+contribution_growth_rate: 0.02  # 2% yearly increase in contributions
+
+# Retirement Expenses (today's dollars)
+annual_retirement_expenses: 45000
+expense_growth_rate: 0.025      # 2.5% per year during retirement
+
+# Withdrawal Strategy
+withdrawal_order:
+  - taxable
+  - traditional_401k
+  - roth_ira
+
+# Social Security / Pension
+annual_social_security: 18000
+social_security_start_age: 67
+
+# Other Income Sources (Optional)
+other_annual_income: 0
