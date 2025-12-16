@@ -731,6 +731,66 @@ class RetirementPlanner:
 
         # Footer
         story.append(Spacer(1, 0.5*inch))
+        # Account Balances Over Time
+        story.append(PageBreak())
+        story.append(Paragraph('Account Balances During Retirement', heading_style))
+        story.append(Spacer(1, 0.1*inch))
+
+        # Get account names from config
+        account_names = list(self.config['accounts'].keys())
+        account_display_names = [name.replace('_', ' ').title() for name in account_names]
+
+        # Build account balances table
+        acct_data = [['Age'] + account_display_names + ['Total']]
+
+        # Show every 5 years to keep table manageable
+        for idx in range(0, len(retirement_df), max(1, len(retirement_df) // 20)):
+            row = retirement_df.iloc[idx]
+            row_data = [str(int(row['Age']))]
+
+            # Add each account balance
+            for account_name in account_names:
+                balance = row.get(f'{account_name}_balance', 0)
+                row_data.append(f"${balance:,.0f}")
+
+            # Add total balance
+            row_data.append(f"${row['Total_Balance']:,.0f}")
+            acct_data.append(row_data)
+
+        # Ensure last year is included
+        if len(retirement_df) > 1:
+            last_row = retirement_df.iloc[-1]
+            if int(last_row['Age']) != int(acct_data[-1][0]):
+                row_data = [str(int(last_row['Age']))]
+                for account_name in account_names:
+                    balance = last_row.get(f'{account_name}_balance', 0)
+                    row_data.append(f"${balance:,.0f}")
+                row_data.append(f"${last_row['Total_Balance']:,.0f}")
+                acct_data.append(row_data)
+
+        # Set column widths dynamically
+        num_cols = len(account_names) + 2  # +2 for Age and Total columns
+        col_width = 6.5 / num_cols * inch
+        col_widths = [0.7*inch] + [col_width] * (num_cols - 1)
+
+        acct_table = RLTable(acct_data, colWidths=col_widths)
+        acct_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f77b4')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('TOPPADDING', (0, 1), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        ]))
+        story.append(acct_table)
+
+        # Footer
+        story.append(Spacer(1, 0.3*inch))
         footer_style = ParagraphStyle('Footer', parent=styles['Normal'],
                                      fontSize=8, textColor=colors.grey, alignment=TA_CENTER)
         story.append(Paragraph(
