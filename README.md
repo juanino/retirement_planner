@@ -229,6 +229,7 @@ The program automatically generates a comprehensive PDF report that includes:
   - Account drawdown visualization (stacked area chart)
 - **Detailed Tables**: Selected years from both accumulation and retirement phases
   - Account balances table during retirement includes all configured accounts (e.g., cash, taxable, traditional, Roth)
+  - Withdrawals by account during retirement (year-by-year gross withdrawals per account)
 - **Professional Layout**: Color-coded sections and formatted tables
 
 The PDF report is saved with a timestamp (e.g., `retirement_report_20251213_100451.pdf`) so you can track different scenarios and plan versions.

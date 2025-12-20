@@ -159,7 +159,8 @@ class RetirementPlanner:
             # Withdraw from accounts based on strategy
             total_withdrawn = 0
             total_taxes = 0
-            account_withdrawals = {}
+            # Track gross withdrawals per account for reporting
+            account_withdrawals = {name: 0 for name in accounts.keys()}
 
             if year > 0 and after_tax_need > 0:
                 remaining_need = after_tax_need
@@ -233,6 +234,10 @@ class RetirementPlanner:
             # Add individual account balances
             for account_name in accounts.keys():
                 row_data[f'{account_name}_balance'] = max(0, balances.get(account_name, 0))
+
+            # Add individual account withdrawals (gross)
+            for account_name in accounts.keys():
+                row_data[f'{account_name}_withdrawal'] = account_withdrawals.get(account_name, 0)
 
             data.append(row_data)
 
@@ -799,6 +804,55 @@ class RetirementPlanner:
             ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
         ]))
         story.append(acct_table)
+
+        # Withdrawals by Account Over Time
+        story.append(Spacer(1, 0.3*inch))
+        story.append(Paragraph('Withdrawals by Account During Retirement', heading_style))
+        story.append(Spacer(1, 0.1*inch))
+
+        wdr_data = [['Age'] + account_display_names + ['Withdrawls']]
+
+        # Sample rows to keep table readable
+        for idx in range(0, len(retirement_df), max(1, len(retirement_df) // 20)):
+            row = retirement_df.iloc[idx]
+            row_values = [str(int(row['Age']))]
+            for account_name in account_names:
+                val = row.get(f'{account_name}_withdrawal', 0)
+                row_values.append(f"${val:,.0f}")
+            row_values.append(f"${row['Gross_Withdrawal']:,.0f}")
+            wdr_data.append(row_values)
+
+        # Ensure last year included
+        if len(retirement_df) > 1:
+            last_row = retirement_df.iloc[-1]
+            if int(last_row['Age']) != int(wdr_data[-1][0]):
+                row_values = [str(int(last_row['Age']))]
+                for account_name in account_names:
+                    val = last_row.get(f'{account_name}_withdrawal', 0)
+                    row_values.append(f"${val:,.0f}")
+                row_values.append(f"${last_row['Gross_Withdrawal']:,.0f}")
+                wdr_data.append(row_values)
+
+        # Column widths similar to balances table
+        num_cols_wdr = len(account_names) + 2
+        col_width_wdr = 6.5 / num_cols_wdr * inch
+        wdr_col_widths = [0.7*inch] + [col_width_wdr] * (num_cols_wdr - 1)
+
+        wdr_table = RLTable(wdr_data, colWidths=wdr_col_widths)
+        wdr_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2ca02c')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('TOPPADDING', (0, 1), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        ]))
+        story.append(wdr_table)
 
         # Footer
         story.append(Spacer(1, 0.3*inch))
