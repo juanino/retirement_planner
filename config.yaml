@@ -30,9 +30,15 @@ accounts:
     annual_contribution: 2000
     contribution_limit: null
     type: taxable
+  cash:
+    balance: 3000
+    annual_contribution: 0
+    contribution_limit: null
+    interest_rate: 0.02   # 2% annual interest on cash (per-account override)
+    type: cash
 
 # Investment & Inflation Assumptions
-expected_return_rate: 0.06      # 6% annual investment return
+expected_return_rate: 0.06      # 6% annual investment return (used unless per-account interest_rate is set)
 inflation_rate: 0.03            # 3% annual inflation
 contribution_growth_rate: 0.02  # 2% yearly increase in contributions
 

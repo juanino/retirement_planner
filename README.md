@@ -39,7 +39,7 @@ Edit `config.yaml` to set your personal retirement parameters:
 - `capital_gains_rate`: Long-term capital gains tax rate (e.g., 0.15 = 15%)
 
 ### Accounts
-Define multiple retirement accounts with different tax treatments:
+Define multiple retirement accounts with different tax treatments and optional per-account interest rates:
 
 ```yaml
 accounts:
@@ -60,24 +60,36 @@ accounts:
     annual_contribution: 2000
     contribution_limit: null
     type: taxable              # Capital gains tax
+
+  cash:
+    balance: 3000
+    annual_contribution: 0
+    contribution_limit: null
+    interest_rate: 0.02        # Optional per-account interest rate (cash defaults to 0.0 if omitted)
+    type: cash                  # Withdrawals treated as tax-free principal in this model
 ```
 
 **Account Types:**
 - `pre_tax`: Traditional 401(k)/IRA - contributions reduce taxable income, withdrawals taxed as ordinary income
 - `roth`: Roth 401(k)/IRA - contributions from after-tax money, withdrawals tax-free
 - `taxable`: Brokerage accounts - capital gains tax applies
+- `cash`: Cash-like holdings - uses `interest_rate` if provided; withdrawals modeled as tax-free principal
 
 ### Investment Returns
-- `expected_return_rate`: Expected annual investment return (e.g., 0.07 = 7%)
+- `expected_return_rate`: Expected annual investment return (e.g., 0.07 = 7%). Used for all accounts unless an account specifies its own `interest_rate`.
 - `inflation_rate`: Expected annual inflation (e.g., 0.03 = 3%)
 - `contribution_growth_rate`: Annual increase in contributions (e.g., 0.03 = 3%)
+
+Per-account override:
+- Any account may include `interest_rate` to override the global `expected_return_rate`.
+- If an account has `type: cash` and no `interest_rate`, it defaults to 0.0%.
 
 ### Retirement Expenses
 - `annual_retirement_expenses`: Expected annual expenses in today's dollars
 - `expense_growth_rate`: Annual increase in expenses during retirement
 
 ### Withdrawal Strategy
-- `withdrawal_order`: List of accounts in order to withdraw from (e.g., `[taxable, traditional_401k, roth_ira]`)
+- `withdrawal_order`: List of accounts in order to withdraw from (e.g., `[taxable, traditional_401k, roth_ira]`). You can include `cash` anywhere in the order to match your spending preference.
 
 ### Social Security / Pension
 - `annual_social_security`: Expected annual social security in today's dollars
@@ -216,6 +228,7 @@ The program automatically generates a comprehensive PDF report that includes:
   - Balance vs. expenses during retirement
   - Account drawdown visualization (stacked area chart)
 - **Detailed Tables**: Selected years from both accumulation and retirement phases
+  - Account balances table during retirement includes all configured accounts (e.g., cash, taxable, traditional, Roth)
 - **Professional Layout**: Color-coded sections and formatted tables
 
 The PDF report is saved with a timestamp (e.g., `retirement_report_20251213_100451.pdf`) so you can track different scenarios and plan versions.

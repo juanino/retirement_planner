@@ -81,8 +81,11 @@ class RetirementPlanner:
             if year > 0:
                 # Apply returns and contributions to each account
                 for name, acc_config in accounts.items():
-                    # Apply returns
-                    account_balances[name] *= (1 + return_rate)
+                    # Apply returns (per-account override via interest_rate; cash defaults to 0.0)
+                    acct_rate = acc_config.get('interest_rate')
+                    if acct_rate is None:
+                        acct_rate = 0.0 if acc_config.get('type') == 'cash' else return_rate
+                    account_balances[name] *= (1 + acct_rate)
 
                     # Add contribution (respecting limits if any)
                     contribution = account_contributions[name]
@@ -180,6 +183,11 @@ class RetirementPlanner:
                         gross_withdrawal = min(remaining_need / (1 - retirement_tax_rate), balances[account_name])
                         taxes = gross_withdrawal * retirement_tax_rate
                         net_withdrawal = gross_withdrawal - taxes
+                    elif account_type == 'cash':
+                        # Cash: principal withdrawals are not taxed in this model
+                        gross_withdrawal = min(remaining_need, balances[account_name])
+                        taxes = 0
+                        net_withdrawal = gross_withdrawal
                     elif account_type == 'taxable':
                         # Taxable: capital gains tax (assume 50% cost basis)
                         gains_portion = 0.5  # Assume half is gains
@@ -200,9 +208,12 @@ class RetirementPlanner:
 
             # Apply returns to remaining balances
             if year < years_in_retirement:
-                for account_name in balances:
-                    if balances[account_name] > 0:
-                        balances[account_name] *= (1 + return_rate)
+                for account_name, acc_config in accounts.items():
+                    if balances.get(account_name, 0) > 0:
+                        acct_rate = acc_config.get('interest_rate')
+                        if acct_rate is None:
+                            acct_rate = 0.0 if acc_config.get('type') == 'cash' else return_rate
+                        balances[account_name] *= (1 + acct_rate)
 
             # Calculate total balance
             total_balance = sum(balances.values())
