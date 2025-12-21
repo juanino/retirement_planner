@@ -41,6 +41,10 @@ jobs:
         cp dist/retirement_planner.exe release/
         cp config.yaml release/
     
+    - name: Create release zip
+      run: |
+        Compress-Archive -Path release/* -DestinationPath retirement-planner-windows.zip
+    
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -52,8 +56,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          release/retirement_planner.exe
-          release/config.yaml
+        files: retirement-planner-windows.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
