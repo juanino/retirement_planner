@@ -32,17 +32,25 @@ jobs:
       run: |
         pyinstaller --onefile --name retirement_planner --console retirement_planner.py
     
+    - name: Prepare artifact
+      run: |
+        mkdir release
+        cp dist/retirement_planner.exe release/
+        cp config.yaml release/
+    
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: retirement-planner-windows
-        path: dist/retirement_planner.exe
+        path: release/
         retention-days: 30
     
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/retirement_planner.exe
+        files: |
+          release/retirement_planner.exe
+          release/config.yaml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
